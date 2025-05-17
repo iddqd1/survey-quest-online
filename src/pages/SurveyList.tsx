@@ -13,7 +13,7 @@ const SurveyList = () => {
     queryKey: ['surveys'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/surveys/', {
+        const response = await fetch('http://localhost:8000/api/surveys/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
