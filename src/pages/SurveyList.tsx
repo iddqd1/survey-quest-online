@@ -1,23 +1,34 @@
 
-import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
-import { useGetSurveys, Survey } from "@/services/surveyService";
+import { Survey } from "@/services/surveyService";
 import SurveyCard from "@/components/surveys/SurveyCard";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
 
 const SurveyList = () => {
-  const [surveys, setSurveys] = useState<Survey[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { getSurveys } = useGetSurveys();
   const { toast } = useToast();
-
-  useEffect(() => {
-    const fetchSurveys = async () => {
+  
+  const { data: surveys = [], isLoading } = useQuery({
+    queryKey: ['surveys'],
+    queryFn: async () => {
       try {
-        setLoading(true);
-        const data = await getSurveys();
-        setSurveys(data);
+        const response = await fetch('/api/surveys/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            // Include auth token if user is logged in
+            ...(localStorage.getItem('token') ? {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            } : {})
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch surveys');
+        }
+        
+        return await response.json();
       } catch (error) {
         console.error("Failed to fetch surveys:", error);
         toast({
@@ -25,13 +36,10 @@ const SurveyList = () => {
           description: "Failed to fetch available surveys. Please try again later.",
           variant: "destructive",
         });
-      } finally {
-        setLoading(false);
+        return [];
       }
-    };
-
-    fetchSurveys();
-  }, [getSurveys, toast]);
+    }
+  });
 
   // Skeleton placeholder while loading
   const SurveySkeleton = () => (
@@ -51,7 +59,7 @@ const SurveyList = () => {
           <p className="text-gray-600 mt-2">Explore and participate in our collection of surveys</p>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="p-4 border rounded-lg">
@@ -61,7 +69,7 @@ const SurveyList = () => {
           </div>
         ) : surveys.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {surveys.map((survey) => (
+            {surveys.map((survey: Survey) => (
               <SurveyCard key={survey.id} survey={survey} />
             ))}
           </div>
