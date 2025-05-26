@@ -12,6 +12,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Survey } from 'survey-react-ui';
 import { Model } from 'survey-core';
 import 'survey-core/survey-core.css';
+import { useCallback } from "react";
+import { submitResponse } from "@/services/surveyResponseService";
+
 
 const SurveyDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,6 +34,22 @@ const SurveyDetail = () => {
     queryFn: () => getSurveyById(parseInt(id!, 10), user?.token),
     enabled: !!id && !!isAuthenticated && !authLoading,
   });
+
+const surveyComplete = useCallback((survey: Model) => {
+
+  submitResponse(
+      parseInt(id!, 10),
+      survey.data,
+      user.token,
+  ).then(() => {
+    toast({
+      title: "Survey Submitted",
+      description: "Thank you for completing the survey!",
+  });
+});
+},[id, user.token, toast]);
+
+
 
   // Handle errors
   if (error) {
@@ -94,6 +113,7 @@ const SurveyDetail = () => {
     );
   } else if (survey) {
     const surveyInstance = new Model(JSON.parse(survey?.configuration) || {});
+    surveyInstance.onComplete.add(surveyComplete);
 
     content = (
       <Card className="w-full max-w-3xl mx-auto">
