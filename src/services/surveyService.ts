@@ -10,6 +10,27 @@ export interface Survey {
   modified: string;
 }
 
+export const getSurveyById = async (id: number, token?: string): Promise<Survey> => {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/surveys/${id}/`, {
+    method: 'GET',
+    headers,
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch survey');
+  }
+  
+  return await response.json();
+};
+
 export const useGetSurveyById = () => {
   const { user } = useAuth();
   

@@ -1,8 +1,9 @@
 
-import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useGetSurveyById, Survey } from "@/services/surveyService";
+import { useQuery } from "@tanstack/react-query";
+import { getSurveyById } from "@/services/surveyService";
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -11,40 +12,33 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const SurveyDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [survey, setSurvey] = useState<Survey | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { getSurveyById } = useGetSurveyById();
+  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
   // Check if user is authenticated
   const { isAuthenticated, loading: authLoading } = useProtectedRoute();
 
-  useEffect(() => {
-    const fetchSurvey = async () => {
-      if (!id || authLoading) return;
-      
-      try {
-        setLoading(true);
-        const data = await getSurveyById(parseInt(id, 10));
-        setSurvey(data);
-      } catch (error) {
-        console.error("Failed to fetch survey:", error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch survey details. Please try again later.",
-          variant: "destructive",
-        });
-        navigate('/');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    data: survey,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: ['survey', id],
+    queryFn: () => getSurveyById(parseInt(id!, 10), user?.token),
+    enabled: !!id && !!isAuthenticated && !authLoading,
+  });
 
-    if (isAuthenticated) {
-      fetchSurvey();
-    }
-  }, [id, getSurveyById, toast, navigate, isAuthenticated, authLoading]);
+  // Handle errors
+  if (error) {
+    console.error("Failed to fetch survey:", error);
+    toast({
+      title: "Error",
+      description: "Failed to fetch survey details. Please try again later.",
+      variant: "destructive",
+    });
+    navigate('/');
+  }
 
   // Mock function to handle survey submission
   const handleSubmitSurvey = () => {
@@ -75,7 +69,7 @@ const SurveyDetail = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        {loading ? (
+        {isLoading ? (
           <Card className="w-full max-w-3xl mx-auto">
             <CardHeader>
               <Skeleton className="h-8 w-3/4" />
