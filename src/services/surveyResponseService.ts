@@ -1,4 +1,6 @@
 
+import { useAuth } from '@/contexts/AuthContext';
+
 export interface SurveyResponse {
   survey: number;
   data: string;
@@ -25,4 +27,38 @@ export const submitSurveyResponse = async (surveyId: number, responseData: strin
   if (!response.ok) {
     throw new Error('Failed to submit survey response');
   }
+};
+
+export const useSubmitSurveyResponse = () => {
+  const { user } = useAuth();
+  
+  const submitResponse = async (surveyId: number, responseData: string): Promise<void> => {
+    try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (user?.token) {
+        headers['Authorization'] = `Bearer ${user.token}`;
+      }
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/surveys-response/`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          survey: surveyId,
+          data: responseData,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit survey response');
+      }
+    } catch (error) {
+      console.error(`Error submitting survey response for survey ${surveyId}:`, error);
+      throw error;
+    }
+  };
+  
+  return { submitResponse };
 };
