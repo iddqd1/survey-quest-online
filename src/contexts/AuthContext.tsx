@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       
-      const response = await fetch('/api/token/', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth-token/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -23,7 +23,7 @@ export const useGetSurveyById = () => {
         headers['Authorization'] = `Bearer ${user.token}`;
       }
       
-      const response = await fetch(`/api/surveys/${id}/`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/surveys/${id}/`, {
         method: 'GET',
         headers,
       });
