@@ -110,6 +110,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       setUser(loggedInUser);
       localStorage.setItem('user', JSON.stringify(loggedInUser));
+      localStorage.setItem('Authorization', loggedInUser.token);
       
       toast({
         title: "Login successful",

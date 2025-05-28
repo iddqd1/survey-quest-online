@@ -1,7 +1,4 @@
 
-import { useAuth } from '@/contexts/AuthContext';
-
-
 export interface SurveyResponse {
   id: number;
   survey: number;

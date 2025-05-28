@@ -11,6 +11,7 @@ import SurveyList from "./pages/SurveyList";
 import SurveyDetail from "./pages/SurveyDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import PaymentCheckout from "./pages/PaymentCheckout";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/surveys" element={<SurveyList />} />
             <Route path="/surveys/:id" element={<SurveyDetail />} />
+             <Route path="/payment/:id" element={<PaymentCheckout />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="*" element={<NotFound />} />
