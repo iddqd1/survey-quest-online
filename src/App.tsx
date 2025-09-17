@@ -12,6 +12,7 @@ import SurveyDetail from "./pages/SurveyDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import PaymentCheckout from "./pages/PaymentCheckout";
+import VerifyOTP from "./pages/VerifyOTP";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
              <Route path="/payment/:id" element={<PaymentCheckout />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/verify-otp" element={<VerifyOTP />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
